@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertTriangle, Heart, Droplet, Battery, Utensils } from 'lucide-react';
+import { AlertTriangle, Heart, Droplet, Battery, Utensils, ShoppingBag } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card } from './ui/card';
 import { Progress } from './ui/progress';
@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { usePetStore } from '../store/pet-store';
 import { PetSprite } from './pet-sprite';
 import { ChatInterface } from './chat-interface';
+import { Shop } from './shop';
 import { toast } from 'react-hot-toast';
 
 export const PetHome = () => {
@@ -40,6 +41,11 @@ export const PetHome = () => {
 
   // Handle playing with the pet
   const handlePlay = () => {
+    if (pet.energy < 10) {
+      toast.error(`${pet.name} is too tired to play!`);
+      return;
+    }
+    
     play(15);
     increaseExperience(10);
     checkLevelUp();
@@ -69,6 +75,7 @@ export const PetHome = () => {
           <TabsList className="w-full bg-white/50 backdrop-blur-sm">
             <TabsTrigger value="home" className="flex-1">Home</TabsTrigger>
             <TabsTrigger value="chat" className="flex-1">Chat</TabsTrigger>
+            <TabsTrigger value="shop" className="flex-1">Shop</TabsTrigger>
             <TabsTrigger value="profile" className="flex-1">Profile</TabsTrigger>
           </TabsList>
 
@@ -191,6 +198,7 @@ export const PetHome = () => {
                   <Button 
                     onClick={handlePlay} 
                     className={`w-full ${isHappinessLow ? 'bg-red-500 hover:bg-red-600' : 'bg-pink-500 hover:bg-pink-600'}`}
+                    disabled={pet.energy < 10}
                   >
                     <Heart className="mr-2 h-4 w-4" /> Play
                   </Button>
@@ -227,6 +235,10 @@ export const PetHome = () => {
 
           <TabsContent value="chat" className="p-4 min-h-[500px]">
             <ChatInterface />
+          </TabsContent>
+
+          <TabsContent value="shop" className="p-4 min-h-[500px]">
+            <Shop />
           </TabsContent>
 
           <TabsContent value="profile" className="p-6 min-h-[500px]">

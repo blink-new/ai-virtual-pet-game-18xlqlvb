@@ -1,74 +1,56 @@
 
-import React, { useState } from 'react'
-import './App.css'
-import { PetDisplay } from './components/PetDisplay'
-import { Button } from './components/ui/button'
-import { Card } from './components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs'
+import { useEffect } from 'react';
+import { Toaster } from 'react-hot-toast';
+import { WelcomeScreen } from './components/welcome-screen';
+import { AdoptionCenter } from './components/adoption-center';
+import { PetHome } from './components/pet-home';
+import { usePetStore } from './store/pet-store';
+import { Shop } from './components/shop';
 
 function App() {
-  const [activeTab, setActiveTab] = useState('home')
+  const { gameStarted, pet, decreaseHunger, decreaseHappiness, decreaseCleanliness, increaseDays } = usePetStore();
+
+  // Set up timers for decreasing stats
+  useEffect(() => {
+    if (!gameStarted || !pet.name) return;
+
+    // Decrease hunger, happiness, and cleanliness every minute
+    const statsInterval = setInterval(() => {
+      decreaseHunger(5);
+      decreaseHappiness(5);
+      decreaseCleanliness(5);
+    }, 60000); // 60000ms = 1 minute
+
+    // Increase days counter every 5 minutes
+    const daysInterval = setInterval(() => {
+      increaseDays();
+    }, 300000); // 300000ms = 5 minutes
+
+    return () => {
+      clearInterval(statsInterval);
+      clearInterval(daysInterval);
+    };
+  }, [gameStarted, pet.name, decreaseHunger, decreaseHappiness, decreaseCleanliness, increaseDays]);
+
+  // Render different screens based on game state
+  const renderScreen = () => {
+    if (!gameStarted) {
+      return <WelcomeScreen />;
+    }
+
+    if (gameStarted && !pet.name) {
+      return <AdoptionCenter />;
+    }
+
+    return <PetHome />;
+  };
 
   return (
-    <div className="app-container">
-      <header className="app-header">
-        <h1>Virtual Pet</h1>
-      </header>
-      
-      <main className="app-content">
-        <Tabs defaultValue="home" className="w-full max-w-3xl">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="home">Home</TabsTrigger>
-            <TabsTrigger value="play">Play</TabsTrigger>
-            <TabsTrigger value="care">Care</TabsTrigger>
-            <TabsTrigger value="shop">Shop</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="home" className="mt-4">
-            <Card className="p-6">
-              <PetDisplay />
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="play" className="mt-4">
-            <Card className="p-6">
-              <h2 className="text-xl font-bold mb-4">Play with your pet</h2>
-              <div className="grid grid-cols-2 gap-4">
-                <Button variant="outline" className="h-24">Ball</Button>
-                <Button variant="outline" className="h-24">Frisbee</Button>
-                <Button variant="outline" className="h-24">Laser Pointer</Button>
-                <Button variant="outline" className="h-24">Toy Mouse</Button>
-              </div>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="care" className="mt-4">
-            <Card className="p-6">
-              <h2 className="text-xl font-bold mb-4">Take care of your pet</h2>
-              <div className="grid grid-cols-2 gap-4">
-                <Button variant="outline" className="h-24">Feed</Button>
-                <Button variant="outline" className="h-24">Groom</Button>
-                <Button variant="outline" className="h-24">Sleep</Button>
-                <Button variant="outline" className="h-24">Medicine</Button>
-              </div>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="shop" className="mt-4">
-            <Card className="p-6">
-              <h2 className="text-xl font-bold mb-4">Shop</h2>
-              <div className="grid grid-cols-2 gap-4">
-                <Button variant="outline" className="h-24">Food</Button>
-                <Button variant="outline" className="h-24">Toys</Button>
-                <Button variant="outline" className="h-24">Accessories</Button>
-                <Button variant="outline" className="h-24">Furniture</Button>
-              </div>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </main>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100">
+      <Toaster position="top-right" />
+      {renderScreen()}
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

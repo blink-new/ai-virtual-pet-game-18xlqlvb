@@ -27,6 +27,7 @@ interface Pet {
   coins: number;
   days: number;
   birthday: number;
+  inventory: string[];
 }
 
 interface PetStore {
@@ -58,7 +59,11 @@ interface PetStore {
   increaseExperience: (amount: number) => void;
   checkLevelUp: () => void;
   increaseCoins: (amount: number) => void;
+  decreaseCoins: (amount: number) => void;
   increaseDays: () => void;
+  
+  // Inventory
+  addToInventory: (itemId: string) => void;
   
   // Chat
   addMessage: (message: Message) => void;
@@ -77,9 +82,10 @@ export const usePetStore = create<PetStore>()(
         energy: 100,
         experience: 0,
         level: 1,
-        coins: 0,
+        coins: 50, // Start with some coins to buy items
         days: 1,
         birthday: 1,
+        inventory: [],
       },
       messages: [],
       gameStarted: false,
@@ -107,6 +113,7 @@ export const usePetStore = create<PetStore>()(
       
       play: (amount) => {
         const { pet } = get();
+        // Energy decreases only when playing
         set({
           pet: {
             ...pet,
@@ -305,12 +312,36 @@ export const usePetStore = create<PetStore>()(
         });
       },
       
+      decreaseCoins: (amount) => {
+        const { pet } = get();
+        if (pet.coins >= amount) {
+          set({
+            pet: {
+              ...pet,
+              coins: pet.coins - amount,
+            },
+          });
+          return true;
+        }
+        return false;
+      },
+      
       increaseDays: () => {
         const { pet } = get();
         set({
           pet: {
             ...pet,
             days: pet.days + 1,
+          },
+        });
+      },
+      
+      addToInventory: (itemId) => {
+        const { pet } = get();
+        set({
+          pet: {
+            ...pet,
+            inventory: [...pet.inventory, itemId],
           },
         });
       },
