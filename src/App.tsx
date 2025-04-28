@@ -1,5 +1,5 @@
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import './App.css'
 import { PetDisplay } from './components/PetDisplay'
 import { Button } from './components/ui/button'
